@@ -1,4 +1,11 @@
 @import 'tailwindcss';
 
+:root {
+    --li-bg-primary-color: #ffffff;
+    --li-fg-inverse-color: #ffffff;
+}
 
+
+.li-bg-primary { background-color: var(--li-bg-primary-color); }
+.li-fg-inverse { color: var(--li-fg-inverse-color); }
 
