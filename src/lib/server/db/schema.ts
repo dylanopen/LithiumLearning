@@ -6,7 +6,6 @@ export const courses = pgTable("courses", {
     level: text("level").notNull(),
     examBoard: text("exam_board"),
     gradeScale: text("grade_scale"),
-    createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
 export type InsertCourse = typeof courses.$inferInsert;
