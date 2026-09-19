@@ -9,11 +9,11 @@ export const load: PageServerLoad = async ({ params }) => {
 	const [course] = await db.select().from(courses).where(eq(courses.id, params.id));
 
 	if (!course) {
-        error(404, "That course can't be found. Did you type the URL manually? If so, try clicking 'Discover Courses' above and find it that way.");
+        error(404, "That course can't be found. Did you type the URL manually? If so, try clicking 'Discover Topics' above and find it that way.");
 	}
 
     return {
-        course
+        course,
     };
 };
 

@@ -1,4 +1,5 @@
-import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
+import { integer, pgTable, serial, text, timestamp, primaryKey } from 'drizzle-orm/pg-core';
 
 export const courses = pgTable("courses", {
     id: text("id").primaryKey(),
@@ -8,6 +9,11 @@ export const courses = pgTable("courses", {
     gradeScale: text("grade_scale"),
 });
 
-export type InsertCourse = typeof courses.$inferInsert;
-export type SelectCourse = typeof courses.$inferSelect;
-
+export const courseTopics = pgTable("course_topics", {
+    id: text("id").notNull(),
+    courseId: text("course_id").notNull(),
+    title: text("title").notNull(),
+    index: integer("index").notNull(),
+}, (table) => [
+    primaryKey({ columns: [table.id, table.courseId] }),
+]);
