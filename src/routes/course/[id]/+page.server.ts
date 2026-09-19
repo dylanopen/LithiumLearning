@@ -1,4 +1,5 @@
-import { db, courses } from '$lib/server';
+import { db, courses, courseTopics } from '$lib/server';
+import { getCourseTopics } from '$lib/server';
 
 import { eq } from "drizzle-orm";
 
@@ -12,8 +13,11 @@ export const load: PageServerLoad = async ({ params }) => {
         error(404, "That course can't be found. Did you type the URL manually? If so, try clicking 'Discover Topics' above and find it that way.");
 	}
 
+    const topics = await getCourseTopics(course.id);
+
     return {
         course,
+        topics,
     };
 };
 
