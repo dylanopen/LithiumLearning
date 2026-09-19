@@ -17,3 +17,11 @@ export const courseTopics = pgTable("course_topics", {
 }, (table) => [
     primaryKey({ columns: [table.id, table.courseId] }),
 ]);
+
+export const lessons = pgTable("lessons", {
+    id: text("id").primaryKey(),
+    title: text("title").notNull(),
+    readContent: text("read_content"),
+    prerequisites: text("prerequisites").array().notNull().default(sql`'{}'::text[]`),
+});
+
