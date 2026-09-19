@@ -5,9 +5,12 @@
 </script>
 
 <CourseCard course={data.course} />
+<hr/>
+
+<h2>Topics & lessons</h2>
 
 {#each data.topics as topic}
-<TopicView {topic} lessons={topic.lessons} />
 <br/>
+<TopicView {topic} lessons={topic.lessons} />
 {/each}
 

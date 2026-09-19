@@ -8,6 +8,7 @@ config({ path: '.env' });
 
 const client = postgres(process.env.DATABASE_URL!);
 export const db = drizzle({ client });
-export { getCourseTopics } from "./query";
+
+export { getCourseTopics, getLessonPrerequisites } from "./query";
 
 
