@@ -25,3 +25,9 @@ export const lessons = pgTable("lessons", {
     prerequisites: text("prerequisites").array().notNull().default(sql`'{}'::text[]`),
 });
 
+export const topicLessons = pgTable("topic_lessons", {
+    id: text("id").notNull(),
+    courseId: text("course_id").notNull(),
+    topicId: text("course_id").notNull(),
+});
+
