@@ -1,5 +1,5 @@
 import { db, lessons } from '$lib/server';
-import { getCourseTopics, getLessonPrerequisites } from '$lib/server';
+import { getLessonPrerequisites, getLessonQuestions } from '$lib/server';
 
 import { eq } from "drizzle-orm";
 
@@ -14,9 +14,11 @@ export const load: PageServerLoad = async ({ params }) => {
 	}
 
     let prerequisites = await getLessonPrerequisites(lesson.id);
+    let questions = await getLessonQuestions(lesson.id);
 
     return {
         lesson,
+        questions,
         prerequisites,
     };
 };

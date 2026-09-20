@@ -1,6 +1,6 @@
 import { eq, and, inArray } from 'drizzle-orm';
 import { db } from './index';
-import { courseTopics, topicLessons, lessons } from './schema';
+import { courseTopics, topicLessons, lessons, lessonQuestions, simpleQuestions } from './schema';
 
 export async function getCourseTopics(courseId: string) {
     const rows = await db
@@ -38,37 +38,53 @@ export async function getCourseTopics(courseId: string) {
 }
 
 function parsePgArray(raw: string[] | string | null | undefined): string[] {
-  if (!raw) return [];
-  if (Array.isArray(raw)) return raw;
-  if (typeof raw === 'string') {
-    // Strips curly braces {} and splits by comma
-    const cleaned = raw.replace(/^\{|\}$/g, '').trim();
-    return cleaned ? cleaned.split(',').map((item) => item.replace(/^"|"$/g, '')) : [];
-  }
-  return [];
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === 'string') {
+        const cleaned = raw.replace(/^\{|\}$/g, '').trim();
+        return cleaned ? cleaned.split(',').map((item) => item.replace(/^"|"$/g, '')) : [];
+    }
+    return [];
 }
 
 export async function getLessonPrerequisites(lessonId: string) {
-  // 1. Fetch the target lesson's prerequisites column
-  const [targetLesson] = await db
+    const [targetLesson] = await db
     .select({ prerequisites: lessons.prerequisites })
     .from(lessons)
     .where(eq(lessons.id, lessonId));
 
-  if (!targetLesson) return [];
+    if (!targetLesson) return [];
 
-  // 2. Parse into a guaranteed JavaScript string[]
-  const prereqIds = parsePgArray(targetLesson.prerequisites);
+    const prereqIds = parsePgArray(targetLesson.prerequisites);
 
-  // Guard clause: if array is empty, return early to avoid firing invalid SQL
-  if (prereqIds.length === 0) {
-    return [];
-  }
+    if (prereqIds.length === 0) {
+        return [];
+    }
 
-  // 3. Fetch matching prerequisite lessons
-  return await db
+    return await db
     .select()
     .from(lessons)
     .where(inArray(lessons.id, prereqIds));
 }
 
+export async function getLessonQuestions(lessonId: string) {
+  const rows = await db
+    .select({
+      type: lessonQuestions.questionType,
+      simple: simpleQuestions,
+      // definition: definitionQuestions,
+    })
+    .from(lessonQuestions)
+    .leftJoin(simpleQuestions, eq(lessonQuestions.questionId, simpleQuestions.id))
+    // .leftJoin(definitionQuestions, eq(lessonQuestions.questionId, definitionQuestions.id))
+    .where(eq(lessonQuestions.lessonId, lessonId));
+
+  // Map flat joins to single tagged question objects
+  return rows
+    .map(({ type, simple /*, definition */ }) => {
+      if (type === 'simple' && simple) return { ...simple, type: 'simple' as const };
+      // if (type === 'definition' && definition) return { ...definition, type: 'definition' as const };
+      return null;
+    })
+    .filter((q): q is NonNullable<typeof q> => q !== null);
+}
