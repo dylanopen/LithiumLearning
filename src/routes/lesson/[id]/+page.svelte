@@ -1,6 +1,7 @@
 <script lang="ts">
     import LessonCard from "$lib/components/LessonCard.svelte";
     import QuestionPreview from "$lib/components/QuestionPreview.svelte";
+    import LearnButton from "$lib/components/LearnButton.svelte";
     import TestButton from "$lib/components/TestButton.svelte";
     let { data } = $props();
 </script>
@@ -8,6 +9,7 @@
 <h2>{data.lesson.title}</h2>
 
 <TestButton lesson={data.lesson} />
+<LearnButton lesson={data.lesson} />
 
 {#if data.prerequisites.length}
 <hr/>
