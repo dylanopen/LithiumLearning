@@ -13,15 +13,14 @@ export const load: PageServerLoad = async ({ params }) => {
         error(404, "That lesson can't be found, so you can't take a test on it. Did you type the URL manually? If so, try clicking 'Discover Topics' above and find it that way.");
 	}
 
-    let allQuestions = getLessonQuestions(lesson);
-    let limit = 10;
-    for (let i = 0; i < limit; i++) {
-
-    }
+    let allQuestions = await getLessonQuestions(lesson.id);
+    let questionIds: string[] = allQuestions.map(x => x.id);
+    let totalMarks: number = questionIds.length; // TODO: add mark counter
 
     return {
         lesson,
         questionIds,
+        totalMarks,
     };
 };
 

@@ -68,23 +68,22 @@ export async function getLessonPrerequisites(lessonId: string) {
 }
 
 export async function getLessonQuestions(lessonId: string) {
-  const rows = await db
+    const rows = await db
     .select({
-      type: lessonQuestions.questionType,
-      simple: simpleQuestions,
-      // definition: definitionQuestions,
+        type: lessonQuestions.questionType,
+        simple: simpleQuestions,
+        // definition: definitionQuestions,
     })
     .from(lessonQuestions)
     .leftJoin(simpleQuestions, eq(lessonQuestions.questionId, simpleQuestions.id))
     // .leftJoin(definitionQuestions, eq(lessonQuestions.questionId, definitionQuestions.id))
     .where(eq(lessonQuestions.lessonId, lessonId));
 
-  // Map flat joins to single tagged question objects
-  return rows
+    return rows
     .map(({ type, simple /*, definition */ }) => {
-      if (type === 'simple' && simple) return { ...simple, type: 'simple' as const };
-      // if (type === 'definition' && definition) return { ...definition, type: 'definition' as const };
-      return null;
+        if (type === 'simple' && simple) return { ...simple, type: 'simple' as const };
+        // if (type === 'definition' && definition) return { ...definition, type: 'definition' as const };
+        return null;
     })
     .filter((q): q is NonNullable<typeof q> => q !== null);
 }
