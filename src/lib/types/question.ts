@@ -2,15 +2,24 @@ export abstract class Question {
     public abstract readonly type: string;
     constructor(
         public id: string,
-        public prompt: string
+        public prompt: string,
+        public markingEngine: MarkingEngine
     ) {}
+}
 
-    abstract verifyAnswer(answer: string): boolean;
+export abstract class MarkingEngine {
+    public abstract isCorrect(correctAnswer: Answer, studentAnswer: string): boolean;
+}
+
+export class ExactMarkingEngine extends MarkingEngine {
+    public isCorrect(correctAnswer: Answer, studentAnswer: string): boolean {
+        return correctAnswer.answers.includes(studentAnswer);
+    }
 }
 
 export class Answer {
     constructor(
-        public answers: string[] = [],
+        public answers: string[],
         public hint: string = "",
         public explanation: string = ""
     ) {}
@@ -24,11 +33,8 @@ export class BasicQuestion extends Question {
         prompt: string,
         public correctAnswer: Answer
     ) {
-        super(id, prompt);
+        super(id, prompt, new ExactMarkingEngine());
     }
 
-    public override verifyAnswer(answer: string): boolean {
-        return this.correctAnswer.answers.includes(answer);
-    }
 }
 
