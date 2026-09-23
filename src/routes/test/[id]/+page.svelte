@@ -15,7 +15,6 @@
 
     async function submitAnswer(value) {
         result = await checkAnswer({ questionId: currentQuestionId, answer: value });
-        console.log(result);
     }
 
     async function advanceQuestion() {
