@@ -1,4 +1,3 @@
-import { sql } from 'drizzle-orm';
 import { foreignKey, integer, jsonb, pgEnum, pgTable, primaryKey, text } from 'drizzle-orm/pg-core';
 
 export const courses = pgTable("courses", {
