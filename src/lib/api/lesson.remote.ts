@@ -1,9 +1,9 @@
 import { query } from '$app/server';
 import { db } from '$lib/server/db';
 import { lesson_questions, lessons, basic_questions } from '$lib/server/db/schema';
-import type { Lesson } from '$lib/types/lesson';
+import { Lesson } from '$lib/types/lesson';
 import { Answer, BasicQuestion, type Question } from '$lib/types/question';
-import { sql } from 'drizzle-orm';
+import { sql, inArray } from 'drizzle-orm';
 import * as v from 'valibot';
 
 export const fetchLessonById = query(
@@ -21,11 +21,11 @@ export const fetchLessonById = query(
             return null;
         }
 
-        return {
-            id: lessonData.id,
-            title: lessonData.title,
-            readContent: lessonData.read_content,
-        };
+        return new Lesson(
+            lessonData.id,
+            lessonData.title,
+            lessonData.read_content,
+        );
     }
 )
 
@@ -35,12 +35,12 @@ export const fetchQuestionsByLessonId = query(
     }),
     async ({ lessonId }): Promise<Question[]> => {
         const basicQuestionsData = await db.execute<typeof basic_questions.$inferSelect>(sql`
-                                SELECT bq.*
-                                FROM ${lesson_questions} lq
-                                INNER JOIN ${basic_questions} bq ON lq.questionId = bq.id
-                                WHERE lq.lessonId = ${lessonId}
-                                AND lq.questionType = 'basic'
-                                `);
+            SELECT bq.*
+            FROM ${lesson_questions} lq
+            INNER JOIN ${basic_questions} bq ON lq.question_id = bq.id
+            WHERE lq.lesson_id = ${lessonId}
+            AND lq.question_type = 'basic'
+        `);
 
         return basicQuestionsData.map((bq) => new BasicQuestion(
             bq.id,
@@ -48,5 +48,35 @@ export const fetchQuestionsByLessonId = query(
             new Answer(bq.answers, bq.hint, bq.explanation),
         ));
     }
-)
+);
 
+export const fetchLessonPrerequisitesByLessonId = query(
+    v.object({
+        lessonId: v.string(),
+    }),
+    async ({ lessonId }): Promise<Lesson[]> => {
+        const rows = await db.execute<{ prerequisites: string[] | null }>(sql`
+            SELECT prerequisites
+            FROM ${lessons}
+            WHERE id = ${lessonId}
+        `);
+
+        const prereqIds = rows[0]?.prerequisites;
+
+        if (!prereqIds || prereqIds.length === 0) {
+            return [];
+        }
+
+        const data = await db.execute<typeof lessons.$inferSelect>(sql`
+            SELECT *
+            FROM ${lessons}
+            WHERE ${inArray(lessons.id, prereqIds)}
+        `);
+
+        return data.map((row) => new Lesson(
+            row.id,
+            row.title,
+            row.read_content,
+        ));
+    }
+);

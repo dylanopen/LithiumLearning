@@ -3,6 +3,7 @@
     import QuestionPreview from "$lib/components/QuestionPreview.svelte";
     import LearnButton from "$lib/components/LearnButton.svelte";
     import TestButton from "$lib/components/TestButton.svelte";
+    
     let { data } = $props();
 </script>
 

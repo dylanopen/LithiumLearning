@@ -1,7 +1,7 @@
 import type { Transport } from '@sveltejs/kit';
 import { Course, CourseTopic } from '$lib/types/curriculum';
 import { Lesson } from '$lib/types/lesson';
-import { Question, Answer, MarkingEngine, BasicQuestion } from '$lib/types/question';
+import { Question, Answer, MarkingEngine, BasicQuestion, ExactMarkingEngine } from '$lib/types/question';
 
 const models: Record<string, any> = {
     Course,
@@ -10,6 +10,7 @@ const models: Record<string, any> = {
     Question,
     Answer,
     MarkingEngine,
+    ExactMarkingEngine,
     BasicQuestion,
 };
 

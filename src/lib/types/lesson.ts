@@ -1,4 +1,5 @@
-import { fetchLessonById } from "$lib/api/lesson.remote";
+import { fetchLessonById, fetchLessonPrerequisitesByLessonId, fetchQuestionsByLessonId } from "$lib/api/lesson.remote";
+import type { Question } from "./question";
 
 export class Lesson {
     constructor(
@@ -17,6 +18,14 @@ export class Lesson {
             lessonData.title,
             lessonData.readContent,
         );
+    }
+
+    async prerequisites(): Promise<Lesson[]> {
+        return await fetchLessonPrerequisitesByLessonId({ lessonId: this.id });
+    }
+
+    async questions(): Promise<Question[]> {
+        return await fetchQuestionsByLessonId({ lessonId: this.id });
     }
 }
 
