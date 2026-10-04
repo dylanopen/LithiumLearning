@@ -24,7 +24,7 @@ export const fetchLessonById = query(
         return {
             id: lessonData.id,
             title: lessonData.title,
-            readContent: lessonData.readContent,
+            readContent: lessonData.read_content,
             questions: await fetchQuestionsByLessonId({ lessonId }),
         };
     }

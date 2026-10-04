@@ -1,36 +1,36 @@
 import { eq, and, inArray } from 'drizzle-orm';
 import { db } from './index';
-import { courseTopics, topicLessons, lessons, lessonQuestions, basicQuestions } from './schema';
+import { course_topics, topicLessons, lessons, lessonQuestions, basicQuestions } from './schema';
 
 export async function getCourseTopics(courseId: string) {
     const rows = await db
     .select({
-        topic: courseTopics,
+        topic: course_topics,
         lesson: lessons,
     })
-    .from(courseTopics)
+    .from(course_topics)
     .leftJoin(
         topicLessons,
         and(
-            eq(courseTopics.topicId, topicLessons.topicId),
-            eq(courseTopics.courseId, topicLessons.courseId)
+            eq(course_topics.topic_id, topicLessons.topic_id),
+            eq(course_topics.course_id, topicLessons.course_id)
         )
     )
-    .leftJoin(lessons, eq(topicLessons.lessonId, lessons.id))
-    .where(eq(courseTopics.courseId, courseId));
+    .leftJoin(lessons, eq(topicLessons.lesson_id, lessons.id))
+    .where(eq(course_topics.course_id, courseId));
 
-    const topicsMap = new Map<string, typeof courseTopics.$inferSelect & { lessons: (typeof lessons.$inferSelect)[] }>();
+    const topicsMap = new Map<string, typeof course_topics.$inferSelect & { lessons: (typeof lessons.$inferSelect)[] }>();
 
     for (const { topic, lesson } of rows) {
-        if (!topicsMap.has(topic.topicId)) {
-            topicsMap.set(topic.topicId, {
+        if (!topicsMap.has(topic.topic_id)) {
+            topicsMap.set(topic.topic_id, {
                 ...topic,
                 lessons: [],
             });
         }
 
         if (lesson) {
-            topicsMap.get(topic.topicId)!.lessons.push(lesson);
+            topicsMap.get(topic.topic_id)!.lessons.push(lesson);
         }
     }
 
@@ -70,14 +70,14 @@ export async function getLessonPrerequisites(lessonId: string) {
 export async function getLessonQuestions(lessonId: string) {
     const rows = await db
     .select({
-        type: lessonQuestions.questionType,
+        type: lessonQuestions.question_type,
         simple: basicQuestions,
         // definition: definitionQuestions,
     })
     .from(lessonQuestions)
-    .leftJoin(basicQuestions, eq(lessonQuestions.questionId, basicQuestions.id))
+    .leftJoin(basicQuestions, eq(lessonQuestions.question_id, basicQuestions.id))
     // .leftJoin(definitionQuestions, eq(lessonQuestions.questionId, definitionQuestions.id))
-    .where(eq(lessonQuestions.lessonId, lessonId));
+    .where(eq(lessonQuestions.lesson_id, lessonId));
 
     return rows
     .map(({ type, simple /*, definition */ }) => {

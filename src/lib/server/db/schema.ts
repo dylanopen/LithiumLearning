@@ -1,55 +1,55 @@
 import { foreignKey, integer, jsonb, pgEnum, pgTable, primaryKey, text } from 'drizzle-orm/pg-core';
 
 export const courses = pgTable("courses", {
-    id: text("id").primaryKey(),
-    title: text("title").notNull(),
-    level: text("level"),
-    examBoard: text("exam_board"),
-    gradeScale: text("grade_scale"),
+    id: text().primaryKey(),
+    title: text().notNull(),
+    level: text(),
+    exam_board: text(),
+    grade_scale: text(),
 }).enableRLS();
 
-export const courseTopics = pgTable("course_topics", {
-    topicId: text("topic_id").notNull(),
-    courseId: text("course_id").notNull().references(() => courses.id),
-    title: text("title").notNull(),
-    index: integer("index").notNull(),
+export const course_topics = pgTable("course_topics", {
+    topic_id: text().notNull(),
+    course_id: text().notNull().references(() => courses.id),
+    title: text().notNull(),
+    index: integer().notNull(),
 }, (table) => [
-    primaryKey({ columns: [table.topicId, table.courseId] }),
+    primaryKey({ columns: [table.topic_id, table.course_id] }),
 ]).enableRLS();
 
 export const lessons = pgTable("lessons", {
-    id: text("id").primaryKey(),
-    title: text("title").notNull(),
-    readContent: text("read_content"),
+    id: text().primaryKey(),
+    title: text().notNull(),
+    read_content: text(),
     prerequisites: jsonb("prerequisites").$type<string[]>().notNull().default([]),
 }).enableRLS();
 
 export const topicLessons = pgTable("topic_lessons", {
-    lessonId: text("lesson_id").notNull().references(() => lessons.id),
-    courseId: text("course_id").notNull(),
-    topicId: text("topic_id").notNull(),
+    lesson_id: text().notNull().references(() => lessons.id),
+    course_id: text().notNull(),
+    topic_id: text().notNull(),
 }, (table) => [
-    primaryKey({ columns: [table.courseId, table.topicId, table.lessonId] }),
+    primaryKey({ columns: [table.course_id, table.topic_id, table.lesson_id] }),
     foreignKey({
-        columns: [table.topicId, table.courseId],
-        foreignColumns: [courseTopics.topicId, courseTopics.courseId],
+        columns: [table.topic_id, table.course_id],
+        foreignColumns: [course_topics.topic_id, course_topics.course_id],
     }),
 ]).enableRLS();
 
 export const questionTypesEnum = pgEnum("question_types", ["basic", "definition", "problem"]);
 
 export const lessonQuestions = pgTable("lesson_questions", {
-    lessonId: text("lesson_id").notNull(),
-    questionId: text("question_id").notNull(),
-    questionType: questionTypesEnum().notNull(),
+    lesson_id: text().notNull(),
+    question_id: text().notNull(),
+    question_type: questionTypesEnum().notNull(),
 }, (table) => [
-    primaryKey({ columns: [table.lessonId, table.questionId] }),
+    primaryKey({ columns: [table.lesson_id, table.question_id] }),
 ]).enableRLS();
 
 export const basicQuestions = pgTable("basic_questions", {
-    id: text("id").primaryKey(),
-    prompt: text("prompt").notNull(),
+    id: text().primaryKey(),
+    prompt: text().notNull(),
     answers: jsonb("answers").$type<string[]>().notNull().default([]),
-    hint: text("hint"),
-    explanation: text("explanation"),
+    hint: text(),
+    explanation: text(),
 }).enableRLS();

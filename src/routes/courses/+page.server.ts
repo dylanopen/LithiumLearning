@@ -1,6 +1,7 @@
-import { db, courses } from '$lib/server';
+import { Course } from "$lib/types/curriculum";
 
 export async function load() {
-    const allCourses = await db.select().from(courses);
-    return { courses: allCourses };
+    return { 
+        courses: await Course.all(),
+    };
 }
