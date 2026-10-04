@@ -1,12 +1,10 @@
 import { fetchLessonById } from "$lib/api/lesson.remote";
-import type { Question } from "./question";
 
 export class Lesson {
     constructor(
         public id: string,
         public title: string,
         public readContent: string | null,
-        public questions: Question[] = []
     ) {}
 
     static async load(lessonId: string) {
@@ -18,7 +16,6 @@ export class Lesson {
             lessonData.id,
             lessonData.title,
             lessonData.readContent,
-            lessonData.questions,
         );
     }
 }

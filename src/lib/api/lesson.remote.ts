@@ -1,6 +1,6 @@
 import { query } from '$app/server';
 import { db } from '$lib/server/db';
-import { lessonQuestions, lessons, basicQuestions } from '$lib/server/db/schema';
+import { lesson_questions, lessons, basic_questions } from '$lib/server/db/schema';
 import type { Lesson } from '$lib/types/lesson';
 import { Answer, BasicQuestion, type Question } from '$lib/types/question';
 import { sql } from 'drizzle-orm';
@@ -25,7 +25,6 @@ export const fetchLessonById = query(
             id: lessonData.id,
             title: lessonData.title,
             readContent: lessonData.read_content,
-            questions: await fetchQuestionsByLessonId({ lessonId }),
         };
     }
 )
@@ -35,10 +34,10 @@ export const fetchQuestionsByLessonId = query(
         lessonId: v.string(),
     }),
     async ({ lessonId }): Promise<Question[]> => {
-        const basicQuestionsData = await db.execute<typeof basicQuestions.$inferSelect>(sql`
+        const basicQuestionsData = await db.execute<typeof basic_questions.$inferSelect>(sql`
                                 SELECT bq.*
-                                FROM ${lessonQuestions} lq
-                                INNER JOIN ${basicQuestions} bq ON lq.questionId = bq.id
+                                FROM ${lesson_questions} lq
+                                INNER JOIN ${basic_questions} bq ON lq.questionId = bq.id
                                 WHERE lq.lessonId = ${lessonId}
                                 AND lq.questionType = 'basic'
                                 `);

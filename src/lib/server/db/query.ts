@@ -1,6 +1,6 @@
 import { eq, and, inArray } from 'drizzle-orm';
 import { db } from './index';
-import { course_topics, topicLessons, lessons, lessonQuestions, basicQuestions } from './schema';
+import { course_topics, topic_lessons, lessons, lesson_questions, basic_questions } from './schema';
 
 export async function getCourseTopics(courseId: string) {
     const rows = await db
@@ -10,13 +10,13 @@ export async function getCourseTopics(courseId: string) {
     })
     .from(course_topics)
     .leftJoin(
-        topicLessons,
+        topic_lessons,
         and(
-            eq(course_topics.topic_id, topicLessons.topic_id),
-            eq(course_topics.course_id, topicLessons.course_id)
+            eq(course_topics.topic_id, topic_lessons.topic_id),
+            eq(course_topics.course_id, topic_lessons.course_id)
         )
     )
-    .leftJoin(lessons, eq(topicLessons.lesson_id, lessons.id))
+    .leftJoin(lessons, eq(topic_lessons.lesson_id, lessons.id))
     .where(eq(course_topics.course_id, courseId));
 
     const topicsMap = new Map<string, typeof course_topics.$inferSelect & { lessons: (typeof lessons.$inferSelect)[] }>();
@@ -70,14 +70,14 @@ export async function getLessonPrerequisites(lessonId: string) {
 export async function getLessonQuestions(lessonId: string) {
     const rows = await db
     .select({
-        type: lessonQuestions.question_type,
-        simple: basicQuestions,
+        type: lesson_questions.question_type,
+        simple: basic_questions,
         // definition: definitionQuestions,
     })
-    .from(lessonQuestions)
-    .leftJoin(basicQuestions, eq(lessonQuestions.question_id, basicQuestions.id))
+    .from(lesson_questions)
+    .leftJoin(basic_questions, eq(lesson_questions.question_id, basic_questions.id))
     // .leftJoin(definitionQuestions, eq(lessonQuestions.questionId, definitionQuestions.id))
-    .where(eq(lessonQuestions.lesson_id, lessonId));
+    .where(eq(lesson_questions.lesson_id, lessonId));
 
     return rows
     .map(({ type, simple /*, definition */ }) => {

@@ -1,6 +1,6 @@
 import { query } from '$app/server';
 import { db } from '$lib/server/db';
-import { lessons, topicLessons, courses, course_topics } from '$lib/server/db/schema';
+import { lessons, topic_lessons, courses, course_topics, lesson_questions, basic_questions } from '$lib/server/db/schema';
 import { Course, CourseTopic } from '$lib/types/curriculum';
 import { Lesson } from '$lib/types/lesson';
 import { sql } from 'drizzle-orm';
@@ -13,7 +13,6 @@ export const fetchCourses = query(
                                 SELECT *
                                 FROM ${courses}
                                 `);
-        console.log(JSON.stringify(data));
         return data.map((row) => new Course(
             row.id,
             row.title,
@@ -86,7 +85,7 @@ export const fetchCourseTopicByCourseIdAndTopicId = query(
     }
 )
 
-export const fetchLessonsByCourse = query(
+export const fetchLessonsByCourseId = query(
     v.object({
         courseId: v.string(),
     }),
@@ -94,36 +93,36 @@ export const fetchLessonsByCourse = query(
         const data = await db.execute<typeof lessons.$inferSelect>(sql`
                                 SELECT l.*
                                 FROM ${lessons} l
-                                JOIN ${topicLessons} tl ON l.${lessons.id} = tl.${topicLessons.lesson_id}
-                                WHERE tl.${topicLessons.course_id} = ${courseId}
+                                JOIN ${topic_lessons} tl ON l.${lessons.id} = tl.${topic_lessons.lesson_id}
+                                WHERE tl.${topic_lessons.course_id} = ${courseId}
                                 `);
         return await Promise.all(data.map(parseLessonData));
     }
 )
 
-export const fetchLessonsByTopic = query(
+export const fetchLessonsByCourseIdAndTopicId = query(
     v.object({
         topicId: v.string(),
         courseId: v.string(),
     }),
     async ({ topicId, courseId }): Promise<Lesson[]> => {
         const data = await db.execute<typeof lessons.$inferSelect>(sql`
-                                SELECT l.*
-                                FROM ${lessons} l
-                                JOIN ${topicLessons} tl ON l.${lessons.id} = tl.${topicLessons.lesson_id}
-                                WHERE tl.${topicLessons.topic_id} = ${topicId}
-                                AND tl.${topicLessons.course_id} = ${courseId}
-                                `);
+            SELECT l.*
+            FROM ${lessons} l
+            INNER JOIN ${topic_lessons} tl ON l.id = tl.lesson_id
+            WHERE tl.topic_id = ${topicId}
+            AND tl.course_id = ${courseId}
+        `);
+
         return await Promise.all(data.map(parseLessonData));
     }
-)
+);
 
 const parseLessonData = async (lessonData: typeof lessons.$inferSelect): Promise<Lesson> => {
     return new Lesson(
         lessonData.id,
         lessonData.title,
         lessonData.read_content,
-        await fetchQuestionsByLessonId({ lessonId: lessonData.id }),
     );
 };
 

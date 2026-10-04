@@ -1,4 +1,4 @@
-import { fetchCourseById, fetchLessonsByCourse, fetchLessonsByTopic, fetchCourseTopicsByCourseId, fetchCourses } from '$lib/api/curriculum.remote';
+import { fetchCourseById, fetchLessonsByCourseId, fetchLessonsByCourseIdAndTopicId, fetchCourseTopicsByCourseId, fetchCourses, fetchCourseTopicByCourseIdAndTopicId } from '$lib/api/curriculum.remote';
 
 export class Course {
     constructor(
@@ -14,10 +14,10 @@ export class Course {
     }
 
     async lessons() {
-        return await fetchLessonsByCourse({ courseId: this.id });
+        return await fetchLessonsByCourseId({ courseId: this.id });
     }
 
-    static async load(id: string) {
+    static async load(id: string): Promise<Course> {
         return await fetchCourseById({ courseId: id });
     }
 
@@ -35,11 +35,11 @@ export class CourseTopic {
     ) {}
 
     async lessons() {
-        return await fetchLessonsByTopic({ topicId: this.topicId, courseId: this.courseId });
+        return await fetchLessonsByCourseIdAndTopicId({ topicId: this.topicId, courseId: this.courseId });
     }
 
     static async load(topicId: string, courseId: string) {
-        return await fetchLessonsByTopic({ topicId, courseId });
+        return await fetchCourseTopicByCourseIdAndTopicId({ topicId, courseId });
     }
 }
 

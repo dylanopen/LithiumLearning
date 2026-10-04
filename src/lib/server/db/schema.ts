@@ -24,7 +24,7 @@ export const lessons = pgTable("lessons", {
     prerequisites: jsonb("prerequisites").$type<string[]>().notNull().default([]),
 }).enableRLS();
 
-export const topicLessons = pgTable("topic_lessons", {
+export const topic_lessons = pgTable("topic_lessons", {
     lesson_id: text().notNull().references(() => lessons.id),
     course_id: text().notNull(),
     topic_id: text().notNull(),
@@ -36,17 +36,17 @@ export const topicLessons = pgTable("topic_lessons", {
     }),
 ]).enableRLS();
 
-export const questionTypesEnum = pgEnum("question_types", ["basic", "definition", "problem"]);
+export const question_types = pgEnum("question_types", ["basic", "definition", "problem"]);
 
-export const lessonQuestions = pgTable("lesson_questions", {
+export const lesson_questions = pgTable("lesson_questions", {
     lesson_id: text().notNull(),
     question_id: text().notNull(),
-    question_type: questionTypesEnum().notNull(),
+    question_type: question_types().notNull(),
 }, (table) => [
     primaryKey({ columns: [table.lesson_id, table.question_id] }),
 ]).enableRLS();
 
-export const basicQuestions = pgTable("basic_questions", {
+export const basic_questions = pgTable("basic_questions", {
     id: text().primaryKey(),
     prompt: text().notNull(),
     answers: jsonb("answers").$type<string[]>().notNull().default([]),

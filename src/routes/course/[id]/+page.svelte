@@ -11,6 +11,6 @@
 
 {#each data.topics as topic}
 <br/>
-<TopicView {topic} lessons={topic.lessons} />
+<TopicView {topic} lessons={await topic.lessons()} />
 {/each}
 
