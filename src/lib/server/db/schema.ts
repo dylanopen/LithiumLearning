@@ -3,18 +3,18 @@ import { foreignKey, integer, jsonb, pgEnum, pgTable, primaryKey, text } from 'd
 export const courses = pgTable("courses", {
     id: text("id").primaryKey(),
     title: text("title").notNull(),
-    level: text("level").notNull(),
+    level: text("level"),
     examBoard: text("exam_board"),
     gradeScale: text("grade_scale"),
 }).enableRLS();
 
 export const courseTopics = pgTable("course_topics", {
-    id: text("id").notNull(),
+    topicId: text("topic_id").notNull(),
     courseId: text("course_id").notNull().references(() => courses.id),
     title: text("title").notNull(),
     index: integer("index").notNull(),
 }, (table) => [
-    primaryKey({ columns: [table.id, table.courseId] }),
+    primaryKey({ columns: [table.topicId, table.courseId] }),
 ]).enableRLS();
 
 export const lessons = pgTable("lessons", {
@@ -32,11 +32,11 @@ export const topicLessons = pgTable("topic_lessons", {
     primaryKey({ columns: [table.courseId, table.topicId, table.lessonId] }),
     foreignKey({
         columns: [table.topicId, table.courseId],
-        foreignColumns: [courseTopics.id, courseTopics.courseId],
+        foreignColumns: [courseTopics.topicId, courseTopics.courseId],
     }),
 ]).enableRLS();
 
-export const questionTypesEnum = pgEnum("question_types", ["simple", "definition", "problem"]);
+export const questionTypesEnum = pgEnum("question_types", ["basic", "definition", "problem"]);
 
 export const lessonQuestions = pgTable("lesson_questions", {
     lessonId: text("lesson_id").notNull(),
@@ -46,7 +46,7 @@ export const lessonQuestions = pgTable("lesson_questions", {
     primaryKey({ columns: [table.lessonId, table.questionId] }),
 ]).enableRLS();
 
-export const simpleQuestions = pgTable("simple_questions", {
+export const basicQuestions = pgTable("basic_questions", {
     id: text("id").primaryKey(),
     prompt: text("prompt").notNull(),
     answers: jsonb("answers").$type<string[]>().notNull().default([]),

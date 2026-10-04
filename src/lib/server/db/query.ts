@@ -1,6 +1,6 @@
 import { eq, and, inArray } from 'drizzle-orm';
 import { db } from './index';
-import { courseTopics, topicLessons, lessons, lessonQuestions, simpleQuestions } from './schema';
+import { courseTopics, topicLessons, lessons, lessonQuestions, basicQuestions } from './schema';
 
 export async function getCourseTopics(courseId: string) {
     const rows = await db
@@ -12,7 +12,7 @@ export async function getCourseTopics(courseId: string) {
     .leftJoin(
         topicLessons,
         and(
-            eq(courseTopics.id, topicLessons.topicId),
+            eq(courseTopics.topicId, topicLessons.topicId),
             eq(courseTopics.courseId, topicLessons.courseId)
         )
     )
@@ -22,15 +22,15 @@ export async function getCourseTopics(courseId: string) {
     const topicsMap = new Map<string, typeof courseTopics.$inferSelect & { lessons: (typeof lessons.$inferSelect)[] }>();
 
     for (const { topic, lesson } of rows) {
-        if (!topicsMap.has(topic.id)) {
-            topicsMap.set(topic.id, {
+        if (!topicsMap.has(topic.topicId)) {
+            topicsMap.set(topic.topicId, {
                 ...topic,
                 lessons: [],
             });
         }
 
         if (lesson) {
-            topicsMap.get(topic.id)!.lessons.push(lesson);
+            topicsMap.get(topic.topicId)!.lessons.push(lesson);
         }
     }
 
@@ -71,11 +71,11 @@ export async function getLessonQuestions(lessonId: string) {
     const rows = await db
     .select({
         type: lessonQuestions.questionType,
-        simple: simpleQuestions,
+        simple: basicQuestions,
         // definition: definitionQuestions,
     })
     .from(lessonQuestions)
-    .leftJoin(simpleQuestions, eq(lessonQuestions.questionId, simpleQuestions.id))
+    .leftJoin(basicQuestions, eq(lessonQuestions.questionId, basicQuestions.id))
     // .leftJoin(definitionQuestions, eq(lessonQuestions.questionId, definitionQuestions.id))
     .where(eq(lessonQuestions.lessonId, lessonId));
 

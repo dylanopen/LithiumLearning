@@ -1,27 +1,41 @@
-import { db, lessons } from '$lib/server';
-import { Lesson } from "./lesson";
-import { eq } from 'drizzle-orm';
+import { fetchCourseById, fetchLessonsByCourse, fetchLessonsByTopic, fetchCourseTopicsByCourseId } from '$lib/api/curriculum.remote';
 
 export class Course {
     constructor(
         public id: string,
         public name: string,
-        public topics: CourseTopic[] = []
+        public level: string | null,
+        public examBoard: string | null,
+        public gradeScale: string | null,
     ) {}
 
-    static loadId(id: string): Course {
+    get topics() {
+        return fetchCourseTopicsByCourseId({ courseId: this.id });
+    }
 
+    get lessons() {
+        return fetchLessonsByCourse({ courseId: this.id });
+    }
+
+    static async load(id: string) {
+        return await fetchCourseById({ courseId: id });
     }
 }
 
 export class CourseTopic {
     constructor(
-        public id: string,
-        public name: string,
+        public topicId: string,
+        public courseId: string,
+        public title: string,
+        public index: number,
     ) {}
 
     get lessons() {
-	await db.execute(sql`select * from ${lessons} where ${lessons.id} = ${id}`);
+        return fetchLessonsByTopic({ topicId: this.topicId, courseId: this.courseId });
+    }
+
+    static async load(topicId: string, courseId: string) {
+        return await fetchLessonsByTopic({ topicId, courseId });
     }
 }
 
