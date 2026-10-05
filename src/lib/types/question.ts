@@ -5,8 +5,21 @@ export abstract class Question {
     constructor(
         public id: string,
         public prompt: string,
-        public markingEngine: MarkingEngine
+        public markingEngine: MarkingEngine | undefined,
     ) {}
+
+    static async load(id: string): Promise<Question | null> {
+	// TODO: support more question types
+	let question = await BasicQuestion.load(id);
+	if (!question) return null;
+
+	question.hideAnswer();
+	return question;
+    }
+
+    public hideAnswer(): void {
+	this.markingEngine = undefined;
+    }
 }
 
 export abstract class MarkingEngine {
@@ -30,17 +43,24 @@ export class Answer {
 
 export class BasicQuestion extends Question {
     readonly type: string = "basic";
+    public correctAnswer: Answer | undefined
 
     constructor(
         id: string,
         prompt: string,
-        public correctAnswer: Answer
+        correctAnswer: Answer
     ) {
         super(id, prompt, new ExactMarkingEngine(correctAnswer));
+	this.correctAnswer = correctAnswer;
     }
 
     static async load(id: string): Promise<BasicQuestion | null> {
         return await fetchBasicQuestionById({ questionId: id });
+    }
+
+    override hideAnswer(): void {
+	super.hideAnswer();
+	this.correctAnswer = undefined;
     }
 }
 
