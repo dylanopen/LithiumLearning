@@ -5,7 +5,6 @@ import { Course, CourseTopic } from '$lib/types/curriculum';
 import { Lesson } from '$lib/types/lesson';
 import { sql } from 'drizzle-orm';
 import * as v from 'valibot';
-import { fetchQuestionsByLessonId } from './lesson.remote';
 
 export const fetchCourses = query(
     async (): Promise<Course[]> => {

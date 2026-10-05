@@ -3,6 +3,7 @@
     import QuestionPreview from "$lib/components/QuestionPreview.svelte";
     import LearnButton from "$lib/components/LearnButton.svelte";
     import TestButton from "$lib/components/TestButton.svelte";
+    import ReadContentDisplay from "$lib/components/ReadContentDisplay.svelte";
     
     let { data } = $props();
 </script>
@@ -25,7 +26,7 @@
 
 <hr/>
 
-<p>{data.lesson.readContent}</p>
+<ReadContentDisplay readContent={data.lesson.readContent} />
 <hr />
 
 <h2>Lesson content</h2>
